@@ -2,7 +2,7 @@ import os
 import sys
 import pandas as pd
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_RIGHT, TA_CENTER
+from reportlab.lib.enums import TA_RIGHT, TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Image, Paragraph
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -28,8 +28,8 @@ if send_email_bool in ['OUI', 'O', 'OU', 'UI']:
     # Get the email address and password from the user
     from_addr = input("entrer votre adresse mail Satom : ")
     emailpassword = getpass.getpass("Entrer votre mot de passe : ")
-
-
+else :
+    send_email_bool = False
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
@@ -61,18 +61,21 @@ def generate_student_pdf(datagrades, pdf_file, datastudent, image_path):
     # Define different styles for different sections
     styles = getSampleStyleSheet()
     name_style = ParagraphStyle('name_style', parent=styles['Heading1'], fontSize=14)
-    adress_style = ParagraphStyle('info_style', parent=styles['BodyText'], fontSize=12, borderPadding=(10, 10, 10, -20),
+    adress_style = ParagraphStyle('adress_style', parent=styles['BodyText'], fontSize=12, borderPadding=(10, 10, 10, -20),
                                   borderColor='black', borderWidth=1, backColor='lightgrey', alignment=TA_RIGHT)
-    academic_year_text_style = ParagraphStyle('info_style', parent=styles['BodyText'], fontSize=12,
+    academic_year_text_style = ParagraphStyle('academic_year_text__style', parent=styles['BodyText'], fontSize=12,
                                               borderPadding=(5, -30, 5, -30),
                                               borderColor='black', borderWidth=1, backColor='lightgrey',
                                               alignment=TA_CENTER)
 
-    ects_style = ParagraphStyle('info_style', parent=styles['BodyText'], fontSize=15, borderPadding=(5, 5, 5, 5),
+    ects_style = ParagraphStyle('ects_style', parent=styles['BodyText'], fontSize=15, borderPadding=(5, 5, 5, 5),
                                 alignment=TA_CENTER)
 
+    title_info_style = ParagraphStyle('title_info_style', fontSize=15, borderPadding=(5, 5, 5, 5),
+                                      alignment=TA_LEFT, underline=True, underlineColor='black')
+
     info_style = ParagraphStyle('info_style', parent=styles['BodyText'], fontSize=12, borderPadding=(5, 5, 5, 5),
-                                alignment=TA_RIGHT)
+                                alignment=TA_LEFT)
 
     # Add student image in the top left corner
     student_image = Image(image_path, width=150, height=75)
@@ -89,6 +92,9 @@ def generate_student_pdf(datagrades, pdf_file, datastudent, image_path):
 
     # Convert the birthdate to a date object and format it as a string
     birthdate = datetime.strptime(datastudent[0][1], "%Y-%m-%d %H:%M:%S").date()
+
+    datastudent[3][1] = datastudent[3][1].capitalize()
+    datastudent[2][1] = datastudent[2][1].upper()
     student_name = Paragraph(f"Étudiant : {datastudent[3][1]} {datastudent[2][1]} <br/>"
                              f" Date de naissance : {birthdate} <br/>"
                              f"Adresse : {datastudent[1][1]}", name_style)
@@ -102,13 +108,16 @@ def generate_student_pdf(datagrades, pdf_file, datastudent, image_path):
     total_ects = Paragraph(f"Total de points ECTS obtenus :<br/><br/>{datastudent[5][1]}/{datastudent[4][1]}",
                            ects_style)
 
-    feedback_ects = Paragraph(f"Décision du jury :<br/><br/> {datastudent[6][1]}", info_style)
-    commentaire_semestre = Paragraph(f"Commentaire du semestre :<br/><br/> {datastudent[7][1]}", info_style)
+    title_feedback_ects = Paragraph(f"<u>Décision du jury :</u><br/><br/>", title_info_style)
+    feedback_ects = Paragraph(f"{datastudent[6][1]}", info_style)
+    title_commentaire_semestre = Paragraph(f"<u>Commentaire du semestre :</u><br/><br/>", title_info_style)
+    commentaire_semestre = Paragraph(f"{datastudent[7][1]}", info_style)
 
     # Add elements to the PDF
     elements = [header_table, Paragraph('<br/><br/>'), academic_year_text, Paragraph('<br/><br/>'), infos_table,
                 Paragraph('<br/><br/>'), table, Paragraph('<br/><br/>'), total_ects, Paragraph('<br/><br/>'),
-                feedback_ects, Paragraph('<br/><br/>'), commentaire_semestre]
+                title_feedback_ects, feedback_ects, Paragraph('<br/><br/>'), title_commentaire_semestre,
+                commentaire_semestre]
 
     # Build PDF
     pdf.build(elements)

@@ -6,9 +6,12 @@ from email import encoders
 
 
 def send_email(datastudent, emailpassword, from_addr):
+    sendername = from_addr.split('@')[0]
+    senderforename = sendername.split('.')[0].capitalize()
     to_addr = f"{datastudent[3][1].lower()}.{datastudent[2][1].lower()}@satom.ch"
     subject = 'Votre bulletin du semestre'
-    body = 'Bonjour, voici votre bulletin du semestre. \n\n Cordialement \n\n Alexandre REY'
+    body = (f"Bonjour {datastudent[3][1]} {datastudent[2][1].upper()}, \n\n Voici votre bulletin du semestre."
+            f" \n\n Cordialement \n\n {senderforename} {sendername[len(senderforename)+1:].upper()}")
 
     # Create a multipart message
     msg = MIMEMultipart()
