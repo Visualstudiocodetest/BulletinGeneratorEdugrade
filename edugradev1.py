@@ -9,7 +9,6 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 import sendmail as sm
 import asyncio
 import getpass
-import tkinter as tk
 from tkinter import filedialog
 from datetime import datetime
 
@@ -61,7 +60,8 @@ def generate_student_pdf(datagrades, pdf_file, datastudent, image_path):
     # Define different styles for different sections
     styles = getSampleStyleSheet()
     name_style = ParagraphStyle('name_style', parent=styles['Heading1'], fontSize=14)
-    adress_style = ParagraphStyle('adress_style', parent=styles['BodyText'], fontSize=12, borderPadding=(10, 10, 10, -20),
+    adress_style = ParagraphStyle('adress_style', parent=styles['BodyText'], fontSize=12,
+                                  borderPadding=(10, 10, 10, -20),
                                   borderColor='black', borderWidth=1, backColor='lightgrey', alignment=TA_RIGHT)
     academic_year_text_style = ParagraphStyle('academic_year_text__style', parent=styles['BodyText'], fontSize=12,
                                               borderPadding=(5, -30, 5, -30),
@@ -162,9 +162,6 @@ async def generate_individual_pdfs(excel_file):
 
 
 async def main():
-    # Create a root Tk window and hide it
-    root = tk.Tk()
-    root.withdraw()
     print("Selectionner le fichier excel avec les notes")
     # Open a file dialog and get the selected file path
     excel_file = filedialog.askopenfilename(
